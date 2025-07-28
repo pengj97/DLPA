@@ -1,0 +1,57 @@
+import os
+
+# graph = 'Bipartite'
+# graph = 'Complete'
+# graph = 'LineGraph'
+graph = 'UnconnectedRegularLine'
+
+seed = 100
+
+gpu = '0'
+
+attacks = [
+   'label_flipping',
+   'furthest_label_flipping',
+   'label_random',
+]
+
+aggregations = [
+   'mean',
+   'ios',
+   'trimmed-mean',
+   'faba',
+   'cc',
+   'scc',
+   'lfighter'
+]
+partitions = [
+   'iid',
+   'dirichlet_mild',
+   'noniid'
+]
+
+action = os.system
+# action = print
+
+# no communication
+# for partition in partitions:
+#    cmd = f'python "main DSGD.py" ' \
+#          + f'--graph {graph} ' \
+#          + f'--aggregation no-comm ' \
+#          + f'--attack label_flipping ' \
+#          + f'--data-partition {partition} ' \
+#          + f'--gpu {gpu}'
+#    action(cmd)
+
+# DSGD
+for partition in partitions:
+   for aggregation in aggregations:
+      for attack in attacks:
+         cmd = f'python "main DSGD.py" ' \
+            + f'--graph {graph} ' \
+            + f'--seed {seed} '\
+            + f'--aggregation {aggregation} ' \
+            + f'--attack {attack} ' \
+            + f'--data-partition {partition} '\
+            + f'--gpu {gpu}'
+         action(cmd)
