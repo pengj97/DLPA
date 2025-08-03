@@ -23,7 +23,6 @@ ax3.axis("off")
 
 # Plot (c)
 ax2 = plt.subplot(1, 3, 3)
-# graph = FanGraph(node_size=10, byzantine_size=2)
 graph = FanGraph(node_size=10, byzantine_size=1)
 graph.show(as_subplot=True, layout='circular', rotate=True, angle_degrees=-53)
 ax2.axis("off")

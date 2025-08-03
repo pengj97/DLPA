@@ -58,10 +58,8 @@ class softmaxRegressionTask(Task):
             'rounds': 100,
             'display_interval': 100,
             'batch_size': batch_size,
-            # 'test_batch_size': 900,
             'test_batch_size': 10000,
             'lr': 3e-2,
-            # 'lr': 1e-1,
             'alpha': 0.1,
         }
         
@@ -72,7 +70,6 @@ class softmaxRegressionTask(Task):
                                  batch_size=super_params['test_batch_size'])
         super().__init__(weight_decay, data_package, model, 
                          loss_fn=loss_fn, test_fn=test_fn,
-                        #  initialize_fn=RandomInitialize(),
                          initialize_fn=ZeroInitialize(),
                          get_train_iter=get_train_iter,
                          get_test_iter=get_test_iter,

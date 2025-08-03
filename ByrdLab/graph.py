@@ -272,7 +272,7 @@ class CompleteGraph(Graph):
         self.show(show_label=True)
 
 
-class RegularCompleteGraph(Graph):
+class LollipopGraph(Graph):
     def __init__(self, node_size, byzantine_size):
         # assert node_size > byzantine_size and node_size == 2 * byzantine_size
         graph = nx.complete_graph(node_size - byzantine_size)
@@ -285,7 +285,7 @@ class RegularCompleteGraph(Graph):
 
         assert byzantine_size == len(byzantine_nodes)
 
-        name = f'RegularComplete_n={node_size}_b={byzantine_size}'
+        name = f'Lollipop_n={node_size}_b={byzantine_size}'
         super().__init__(name=name, nx_graph=graph,
                                             honest_nodes=honest_nodes,
                                             byzantine_nodes=byzantine_nodes)

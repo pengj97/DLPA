@@ -15,26 +15,12 @@ from ByrdLab.tasks import Task
 
 
 __all__ = [
-    'resnet18',
-    'resnet34half',
-    'resnet34',
-    'resnet50half',
-    'resnet50',
-    'resnet101',
-    'resnet152',
+    'resnet18'
 ]
 
 model_urls = {
     'resnet18':
-    '/media/data/data/pengj/Byrd/resnet_for_cifar100/resnet18cifar-acc76.750.pth',
-    # 'resnet34':
-    # '/media/data/data/pengj/code_neural_network/resnetforcifar/resnet34cifar-acc77.840.pth',
-    # 'resnet50':
-    # '/media/data/data/pengj/code_neural_network/resnetforcifar/resnet50-cifar-acc77.88.pth',
-    # 'resnet101':
-    # '/media/data/data/pengj/code_neural_network/resnetforcifar/resnet101-cifar-acc80.16.pth',
-    # 'resnet152':
-    # '/media/data/data/pengj/code_neural_network/resnetforcifar/resnet152-cifar-acc80.99.pth',
+    '/media/data/data/pengj/Byrd/resnet_for_cifar100/resnet18cifar-acc76.750.pth'
 }
 
 
@@ -246,7 +232,6 @@ class ResNet(nn.Module):
         x = self.avgpool(x)
         x = x.view(x.size(0), -1)
         x = self.fc(x)
-        # x = F.log_softmax(x, dim=1)
         return x
 
 
@@ -293,26 +278,10 @@ def full_generator(dataset, rng_pack: RngPackage=RngPackage()):
 class ResNetTask(Task):
     def __init__(self, data_package: DataPackage, batch_size=32):
         weight_decay = 0.0085
-        # model = resnet18()
         model = resnet18(pretrained=True)
-        # for name, param in model.named_parameters():
-        #     if "fc.weight" in name:
-        #         param.requires_grad = True #要更新
-        #     elif "fc.bias" in name:
-        #         param.requires_grad = True
-        #     else:
-        #         param.requires_grad = False #不更新
+    
         num_features = model.fc.in_features
         model.fc = nn.Linear(num_features, data_package.num_classes)
-
-        # from torchvision.models import resnet18
-        # model = resnet18(weights=ResNet18_Weights.DEFAULT)
-        # model.conv1 = torch.nn.Conv2d(model.conv1.in_channels,
-        #                         model.conv1.out_channels,
-        #                         3, 1, 1)
-        # model.maxpool = torch.nn.Identity()  # nn.Conv2d(64, 64, 1, 1, 1)
-        # num_features = model.fc.in_features
-        # model.fc = torch.nn.Linear(num_features, data_package.num_classes)
     
         model = adapt_model_type(model)
         loss_fn = nn_loss
@@ -323,10 +292,7 @@ class ResNetTask(Task):
             'display_interval': 10,
             'batch_size': batch_size,
             'test_batch_size': 1000,
-            # 'lr': 1e-1,
-            # 'lr': 1e-2,
             'lr': 3e-2,
-            # 'lr': 5e-2,
             'alpha':0.1,
         }
 
@@ -335,7 +301,6 @@ class ResNetTask(Task):
         get_test_iter = partial(order_generator, dataset=test_set, batch_size=super_params['test_batch_size'])
         super().__init__(weight_decay, data_package, model,
                          loss_fn=loss_fn, test_fn=test_fn,
-                        #  initialize_fn=RandomInitialize(),
                          initialize_fn=ZeroInitialize(),
                          get_train_iter=get_train_iter,
                          get_test_iter=get_test_iter,

@@ -1,141 +1,104 @@
-import matplotlib.pyplot as plt
 import os
 import sys
-import re
 sys.path.append('..')
+import matplotlib.pyplot as plt
 from ByrdLab.library.cache_io import load_file_in_cache, set_cache_path
-
-colors = ['green', 'olive',  'orange', 'blue', 'purple', 'grey', 'gold', 'red']
-markers = ['h', '^', 'v',  's', 'x', 'o', '>',  'D']
-
-# colors = ['green', 'olive',  'orange', 'blue', 'purple', 'grey', 'gold', 'skyblue', 'red']
-# markers = ['h', '^', 'v',  's', 'x', 'o', '>', '<', 'D']
-
-# colors = ['green', 'olive',  'orange', 'blue',  'red']
-# markers = ['h', '^', 'v',  's',  '>']
-
-
-# lr_ctrl = ''
-lr_ctrl = '_invSqrtLR'
-# lr_ctrl = '_ladderLR'
-
-# task_name = 'NeuralNetwork'
-task_name = 'SR'
-# task_name = 'ResNet18'
-
-# graph_name = 'Fan_n=10_b=1'
-# graph_name = 'Complete_n=10_b=1'
-# graph_name = 'ER_n=10_b=1_p=0.7_seed=300'
-# graph_name = 'Line_n=10_b=1'
-# graph_name = 'TwoCastle_k=5_b=1_seed=40'
-# graph_name = 'Centralized_n=10_b=1'
-# graph_name = 'Octopus_head=5_headb=0_handb=5'
-# graph_name = 'UnconnectedRegularLine_n=10_b=1'
-# graph_name = 'Fan_n=10_b=2'
-
-
-
-attack_name = 'label_flipping'
-# attack_name = 'furthest_label_flipping'
-# attack_name = 'label_random'
-
-FONTSIZE = 25
+from ByrdLab.graph import  FanGraph, TwoCastle
 
 __FILE_DIR__ = os.path.dirname(os.path.abspath(__file__))
 __CACHE_DIR__ = 'record'
 __CACHE_PATH__ = os.path.join(__FILE_DIR__, os.path.pardir, __CACHE_DIR__)
 set_cache_path(__CACHE_PATH__)
 
+taskname = 'SR_mnist'
+W = 10
+P = 1
 
-def draw_mnist():
-    # datasets = ['mnist', 'cifar10']
-    dataset = 'mnist'
-
-
-    aggregations = [
-        ('meanW', 'Baseline'), 
-        ('no_communication', 'No Comm.'),
-        # ('median', 'CooMed'),
-        # ('geometric_median', 'GeoMed'), 
-        # ('Krum', 'Krum'), 
+topologies = ['TwoCatsle', 'Fan']
+aggregations = [
         ('trimmed_mean', 'TriMean'),
         ('FABA', 'FABA'), 
-        ('CC', 'CC'),
-        ('SCClip', 'CG'),
-        # ('SCClip_T', 'SCC-T'),
+        ('CC_tau=0.03', 'CC'),
+        ('SCClip_tau=0.03', 'CG'),
         ('IOS', 'IOS'), 
-        # ('bulyan', 'Bulyan'),
-        # ('remove_outliers', 'Cutter'),
-        # ('LFighter', 'LFighter'),
         ('meanW', 'WeiMean'), 
-    ]
-    partition_names = [
-        # ('iidPartition', 'IID'),
-        # ('DirichletPartition_alpha=1', 'Mild Noniid'),
-        ('LabelSeperation', 'Noniid')
-    ]
-    graph_names = [
-        ('RegularComplete_n=10_b=1', 'Lollipop graph'),
-        ('Fan_n=10_b=1', 'Fan graph'),
-    ]
+]
+partition_names = ('LabelSeperation', 'Noniid')
+attacks = 'label_flipping'
 
-    pic_name = 'decentralized_' + task_name + '_' + dataset + '_' + attack_name + lr_ctrl + '_toyexample' 
+FONTSIZE = 25
+colors = [ 'orange', 'blue', 'purple', 'grey', 'gold',  'red']
+markers = [ 'v',  's', 'x', 'o', '>',  'D']
 
-    fig, axes = plt.subplots(1, len(graph_names), figsize=(14, 8), sharex=True, sharey=True)
+import matplotlib.gridspec as gridspec
 
-    axes[0].set_ylabel('Accuracy', fontsize=FONTSIZE)
-    axes[0].set_ylim(0.6, 0.93)
+fig = plt.figure(figsize=(14, 14))
+gs = gridspec.GridSpec(2, 2, height_ratios=[1.3, 1])
 
 
-    taskname = task_name + '_' + dataset
-    for i in range(len(graph_names)):
-        # axes[i].set_title(partition_names[0][1] + ' (MNIST)', fontsize=FONTSIZE)
-        axes[i].set_title(graph_names[i][1], fontsize=FONTSIZE)
-        axes[i].set_xlabel('iterations', fontsize=FONTSIZE)
-        axes[i].tick_params(labelsize=FONTSIZE)
-        axes[i].grid('on')
-        for agg_index, (agg_code_name, agg_show_name) in enumerate(aggregations):
-            color = colors[agg_index]
-            marker = markers[agg_index]
-            if agg_code_name == 'CC' or agg_code_name == 'SCClip':
-                # agg_code_name += '_tau=0.1'
-                agg_code_name += '_tau=0.03'
-            if agg_show_name == 'Baseline':
-                file_name = 'DSGD_baseline_meanW' + lr_ctrl
-                file_path = [taskname, 'ER_n=10_b=0_p=0.7_seed=300', partition_names[0][0]]
-            else:
-                file_name = 'DSGD_' + attack_name + '_' + agg_code_name + lr_ctrl
-                file_path = [taskname, graph_names[i][0], partition_names[0][0]]
-            record = load_file_in_cache(file_name, path_list=file_path)
-            acc_path = record['acc_path']
-            x_axis = [r*record['display_interval']
-                        for r in range(record['rounds']+1)]
-            axes[i].plot(x_axis, acc_path, '-', color=color, marker=marker, label=agg_show_name, markevery=20, linewidth=4, markersize=10)
-    
-    handles, labels = axes[0].get_legend_handles_labels()
-    leg = fig.legend(handles, labels, loc='lower center', ncol=4, fontsize=FONTSIZE, markerscale=2)
-    leg_lines = leg.get_lines()
-    for i in range(len(leg_lines)):
-        plt.setp(leg_lines[i], linewidth=5.0)
-    
-    plt.subplots_adjust(top=0.91, bottom=0.30, left=0.125, right=1, hspace=0.27, wspace=0.2)
+# Plot (a)
+ax1 = plt.subplot(gs[0, 0])
+graph = TwoCastle(k=5, byzantine_size=1, seed=40)
+graph.show(reverse=True, as_subplot=True, layout='circular', rotate=True, angle_degrees=-53)
+ax1.axis("off")
 
-    file_dir = os.path.dirname(os.path.abspath(__file__))
-    dir_png_path = os.path.join(file_dir, 'pic', 'png')
-    dir_pdf_path = os.path.join(file_dir, 'pic', 'pdf')
+# Plot (c)
+ax2 = plt.subplot(gs[0, 1])
+graph = FanGraph(node_size=10, byzantine_size=1)
+graph.show(as_subplot=True, layout='circular', rotate=True, angle_degrees=-53)
+ax2.axis("off")
 
-    if not os.path.isdir(dir_pdf_path):
-        os.makedirs(dir_pdf_path)
-    if not os.path.isdir(dir_png_path):
-        os.makedirs(dir_png_path)
-
-    suffix = ''
-    pic_png_path = os.path.join(dir_png_path, pic_name + suffix + '.png')
-    pic_pdf_path = os.path.join(dir_pdf_path, pic_name + suffix + '.pdf')
-    plt.savefig(pic_png_path, format='png', bbox_inches='tight')
-    plt.savefig(pic_pdf_path, format='pdf', bbox_inches='tight')
-    plt.show()
+# Accuracy plots
+ax3 = plt.subplot(gs[1, 0])
+ax4 = plt.subplot(gs[1, 1])
+axes = [ax3, ax4]
+axes[0].set_ylabel('Accuracy', fontsize=FONTSIZE)
+axes[0].set_ylim(0.6, 0.83)
+axes[1].set_ylim(0.6, 0.83)
+axes[1].tick_params(labelleft=False) 
 
 
-if __name__ == '__main__':
-    draw_mnist()
+for i in range(len(topologies)):
+    # axes[i].set_title(f'{topologies[i]} graph', fontsize=FONTSIZE)
+    axes[i].set_xlabel('iterations', fontsize=FONTSIZE)
+    axes[i].tick_params(labelsize=FONTSIZE)
+    axes[i].grid(True)  # 使用True而不是'on'
+    for agg_index, (agg_code_name, agg_show_name) in enumerate(aggregations):
+        color = colors[agg_index]
+        marker = markers[agg_index]
+        if topologies[i] == 'TwoCatsle':
+            file_path = [taskname, f'TwoCastle_k=5_b=1_seed=40', partition_names[0]]
+        else:
+            file_path = [taskname, f'{topologies[i]}_n={W}_b={P}', partition_names[0]]
+        file_name = f'DSGD_{attacks}_{agg_code_name}_invSqrtLR'
+        record = load_file_in_cache(file_name, path_list=file_path)
+
+        acc_path = record['acc_path']
+        x_axis = [r*record['display_interval'] for r in range(record['rounds']+1)]
+        axes[i].plot(x_axis, acc_path, '-', color=color, marker=marker, 
+                    label=agg_show_name, markevery=10, linewidth=4, markersize=10)
+        
+# Add subplot labels (a), (b) under each plot
+label_props = dict(fontsize=FONTSIZE, ha='center', va='center')
+fig.text(0.30, 0.13, '(a)', **label_props)
+fig.text(0.78, 0.13, '(b)', **label_props)
+
+fig.text(0.29, 0.575, 'Two-castle graph', **label_props)
+fig.text(0.78, 0.575, 'Fan graph', **label_props)
+
+handles, labels = axes[0].get_legend_handles_labels() 
+leg = fig.legend(handles, labels, loc='lower center', ncol=3, fontsize=FONTSIZE, markerscale=2)
+leg_lines = leg.get_lines()
+for i in range(len(leg_lines)):
+    plt.setp(leg_lines[i], linewidth=5.0)   
+
+plt.subplots_adjust(top=1,
+                   bottom=0.22,
+                   left=0.1,
+                   right=0.97,
+                   hspace=0.13,
+                   wspace=0.2)
+
+plt.savefig(f'toyexample.pdf', format='pdf', bbox_inches='tight')
+
+plt.show()

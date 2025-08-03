@@ -311,26 +311,24 @@ class DataPoisoningAttack():
     def run(self, features, targets, model=None, rng_pack: RngPackage=RngPackage(),):
         raise NotImplementedError
 
-        
 class label_flipping(DataPoisoningAttack):
 
     def __init__(self):
         super().__init__(name='label_flipping')
     
     def run(self, features, targets, model=None, rng_pack: RngPackage = RngPackage()):
-        # features = features
-        # targets = 9 - targets
-
         features = features
         targets = 99 - targets
+        return features, targets
+    
+class label_flipping_mnist(DataPoisoningAttack):
 
-        # for i in range(len(targets)):
-        #     if targets[i] == 0:
-        #         targets[i] = 2
-        #     elif targets[i] == 1:
-        #         targets[i] = 9
-        #     elif targets[i] == 5:
-        #         targets[i] = 3 
+    def __init__(self):
+        super().__init__(name='label_flipping')
+    
+    def run(self, features, targets, model=None, rng_pack: RngPackage = RngPackage()):
+        features = features
+        targets = 9 - targets
         return features, targets
     
 class label_random(DataPoisoningAttack):
@@ -353,10 +351,10 @@ class feature_label_random(DataPoisoningAttack):
         targets = torch.randint(0, 9, size=targets.shape, generator=rng_pack.torch)
         return features, targets
     
-class furthest_label_flipping(DataPoisoningAttack):
+class dynamic_label_flipping(DataPoisoningAttack):
 
     def __init__(self):
-        super().__init__(name='furthest_label_flipping')
+        super().__init__(name='dynamic_label_flipping')
 
     # For MLP and CNN
     # def run(self, features, targets, model=None, rng_pack: RngPackage = RngPackage()):
@@ -386,12 +384,12 @@ class furthest_label_flipping(DataPoisoningAttack):
 
     
 
-class adversarial_label_flipping(DataPoisoningAttack):
+# class adversarial_label_flipping(DataPoisoningAttack):
 
-    def __init__(self):
-        super().__init__(name='adversarial_label_flipping')
+#     def __init__(self):
+#         super().__init__(name='adversarial_label_flipping')
 
-    def run(self, features, targets, model= None, rng_pack: RngPackage = RngPackage()):
-        features = features
-        targets = targets
-        return features, targets
+#     def run(self, features, targets, model= None, rng_pack: RngPackage = RngPackage()):
+#         features = features
+#         targets = targets
+#         return features, targets

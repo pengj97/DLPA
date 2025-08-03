@@ -44,7 +44,7 @@ python "main DSGD.py"  --aggregation <aggregation-name> --attack <attack-name> -
 >
 > `<attack-name>`: 
 > - label_flipping (which executes static label flipping attacks)
-> - furthest_label_flipping (which executes dynamic label flipping attacks)
+> - dynamic_label_flipping (which executes dynamic label flipping attacks)
 >
 > `<data-partition>`: 
 > - iid
@@ -61,15 +61,40 @@ python "main DSGD.py"  --aggregation <aggregation-name> --attack <attack-name> -
 
 
 # ====================
-# Fig
+# Figure 1
+```
+python run-toyexample.py
+
+cd draw_decentralized_multi_fig
+
+python draw-Decentral-toyexample.py
+
+```
+
+# ====================
+# Figure 2
 ```
 cd draw_decentralized_multi_fig
 
-python draw-Decentral-MultiFig.py 
+python draw-Decentral-topology.py
+```
+
+# ====================
+# Figures 3, 5, 6
+```
+python run-experiments.py
+
+cd draw_decentralized_multi_fig
+
+python draw-Decentral-MultiFig.py
+```
+
+# ====================
+# Figure 4
+```
+python run-hetero-disturb.py
+
+cd draw_decentralized_multi_fig
 
 python draw-Decentral-A-xi.py
-
-python draw-Decentral-topology.py
-
-python draw-Decentral-toyexample.py
 ```
