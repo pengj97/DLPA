@@ -1,4 +1,4 @@
-# When Simple Wins: Topology-Independent Robustness of Weighted Mean under Label Poisoning Attacks in Heterogeneous Decentralized Learning
+# Topology-Independent Robustness of the Weighted Mean under Label Poisoning Attacks in Heterogeneous Decentralized Learning
 
 ## Install
 1. Download the dependant packages:
@@ -72,7 +72,7 @@ python draw-Decentral-toyexample.py
 ```
 
 # ====================
-# Figure 2
+# Figure 10
 ```
 cd draw_decentralized_multi_fig
 
@@ -80,7 +80,7 @@ python draw-Decentral-topology.py
 ```
 
 # ====================
-# Figures 3, 5, 6
+# Figures 3, 6, 8
 ```
 python run-experiments.py
 
